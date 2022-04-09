@@ -9,6 +9,8 @@ import ProposalService from '../../services/proposal.services';
 export class AppHome {
   @State() name: string;
   @State() signer;
+
+  @State() votes = {};
   proposalService = new ProposalService();
 
   handleSubmit(e) {
@@ -29,28 +31,74 @@ export class AppHome {
     this.signer = null;
   }
 
-  @State() pastProposals;
+  @State() proposals;
 
   async componentDidLoad() {
+    await this.connectToWallet();
     this.proposalService.onProposalsCreated(
+      e => {},
       e => {
-        console.log('onCreated');
-        console.log(e);
+        this.proposals = [...this.proposals, e];
+        const { returnValues } = e;
+        const { proposalId } = returnValues;
+        this.votes[proposalId] = {
+          yes: 0,
+          no: 0,
+          abstain: 0,
+        };
       },
+      e => {},
+    );
+
+    this.proposalService.onVoteCast(
+      e => {},
       e => {
-        console.log('onData');
-        console.log(e);
+        const { returnValues } = e;
+        const { proposalId, support } = returnValues;
+        if (!this.votes[proposalId]) {
+          this.votes[proposalId] = {
+            yes: 0,
+            no: 0,
+            abstain: 0,
+          };
+        }
+        if (support === '0') {
+          console.log('here');
+          this.votes[proposalId]['yes'] += 1;
+        } else if (support === '1') {
+          this.votes[proposalId]['no'] += 1;
+        } else if (support === '2') {
+          this.votes[proposalId]['abstain'] += 1;
+        }
+        this.votes = { ...this.votes };
       },
-      e => {
-        console.log('onError');
-        console.log(e);
-      },
+      e => {},
     );
 
     this.proposalService.onPastProposals(e => {
-      console.log(e);
-      console.log('OnPastProposals');
-      this.pastProposals = e;
+      this.proposals = e;
+    });
+    this.proposalService.onPastVoteCreated(e => {
+      for (let i = 0; i < e.length; i++) {
+        const vote = e[i];
+        const { returnValues } = vote;
+        const { proposalId, support } = returnValues;
+        if (!this.votes[proposalId]) {
+          this.votes[proposalId] = {
+            yes: 0,
+            no: 0,
+            abstain: 0,
+          };
+        }
+        if (support === '0') {
+          console.log('here');
+          this.votes[proposalId]['yes'] += 1;
+        } else if (support === '1') {
+          this.votes[proposalId]['no'] += 1;
+        } else if (support === '2') {
+          this.votes[proposalId]['abstain'] += 1;
+        }
+      }
     });
   }
 
@@ -77,10 +125,38 @@ export class AppHome {
             <input type="submit" value="Submit" />
           </form>
         )}
-        {this.pastProposals && (
+        {this.proposals && (
           <ul>
-            {this.pastProposals.map(proposal => (
-              <li>{proposal.returnValues[8]}</li>
+            {this.proposals.map(proposal => (
+              <li key={proposal.proposalId}>
+                <div>
+                  {proposal.returnValues[8]}
+                  <button
+                    onClick={() => {
+                      this.proposalService.vote(proposal.returnValues.proposalId, 0, this.signer);
+                    }}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => {
+                      this.proposalService.vote(proposal.returnValues.proposalId, 1, this.signer);
+                    }}
+                  >
+                    No
+                  </button>
+                  <button
+                    onClick={() => {
+                      this.proposalService.vote(proposal.returnValues.proposalId, 2, this.signer);
+                    }}
+                  >
+                    Abstain
+                  </button>
+                  <div>Yes: {this.votes[proposal.returnValues.proposalId] && this.votes[proposal.returnValues.proposalId].yes}</div>
+                  <div>No: {this.votes[proposal.returnValues.proposalId] && this.votes[proposal.returnValues.proposalId].no}</div>
+                  <div>Abstain: {this.votes[proposal.returnValues.proposalId] && this.votes[proposal.returnValues.proposalId].abstain}</div>
+                </div>
+              </li>
             ))}
           </ul>
         )}

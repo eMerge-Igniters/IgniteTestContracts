@@ -25,10 +25,7 @@ export default class ProposalService {
 
     const transferCalldata = igniteContract.interface.encodeFunctionData('transfer', [teamAddress, grantAmount]);
 
-    console.log(igniteGovernorContract);
-
-    let proposal = await igniteGovernorContract.propose([this.addresses.IGNITE_ADDRESS], [0], [transferCalldata], proposalDescription);
-    console.log(proposal);
+    await igniteGovernorContract.propose([this.addresses.IGNITE_ADDRESS], [0], [transferCalldata], 'PID #' + `${new Date()}` + ': ETH 80%, HNT 10%, OHM 10%');
   }
 
   onProposalsCreated(onCreated, onData, onError) {
@@ -38,7 +35,6 @@ export default class ProposalService {
     igniteGovernor.events
       .ProposalCreated({}, event => onCreated(event))
       .on('data', event => {
-        console.log('HERE');
         //Has a field called returnValues which maps to the 8 arguments from ProposalCreated
         //See https://docs.openzeppelin.com/contracts/4.x/api/governance#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
         //Only fires on successful events.  Inspect why it happens a lot
@@ -53,7 +49,6 @@ export default class ProposalService {
 
   onPastProposals(onPastProposalsCreated) {
     const governorAddress = this.addresses.IGNITE_GOVERNOR_ADDRESS;
-    console.log(governorAddress);
     let igniteGovernor = new this.web3.eth.Contract(IgniteGovernorContract, governorAddress);
     //All past events
     //Inspect why events here is alwasy length 1
@@ -62,9 +57,43 @@ export default class ProposalService {
     });
   }
 
-  getVotes() {
+  // getVotes() {
+  //   const governorAddress = this.addresses.IGNITE_GOVERNOR_ADDRESS;
+  //   let igniteGovernor = new this.web3.eth.Contract(IgniteGovernorContract, governorAddress);
+  //   return igniteGovernor.methods.getVotes().call();
+  // }
+
+  async vote(proposalId, support, signer) {
+    const governorAddress = this.addresses.IGNITE_GOVERNOR_ADDRESS;
+    const igniteGovernorContract = new ethers.Contract(governorAddress, IgniteGovernorContract, signer);
+
+    // const castVoteData = igniteGovernorContract.interface.encodeFunctionData('castVote', [proposalId, support]);
+    await igniteGovernorContract.castVote(proposalId, support);
+  }
+
+  onVoteCast(onCast, onData, onError) {
     const governorAddress = this.addresses.IGNITE_GOVERNOR_ADDRESS;
     let igniteGovernor = new this.web3.eth.Contract(IgniteGovernorContract, governorAddress);
-    return igniteGovernor.methods.getVotes().call();
+    //Any new, incoming events
+    igniteGovernor.events
+      .VoteCast({}, event => onCast(event))
+      .on('data', event => {
+        onData(event);
+      })
+      .on('error', error => {
+        //Only fires on errors for ProposalCreated
+
+        onError(error);
+      });
+  }
+
+  onPastVoteCreated(onPastVoteCreated) {
+    const governorAddress = this.addresses.IGNITE_GOVERNOR_ADDRESS;
+    let igniteGovernor = new this.web3.eth.Contract(IgniteGovernorContract, governorAddress);
+    //All past events
+    //Inspect why events here is alwasy length 1
+    igniteGovernor.getPastEvents('VoteCast', { fromBlock: 0, toBlock: 'latest' }, (_, events) => {
+      onPastVoteCreated(events);
+    });
   }
 }
