@@ -69,7 +69,9 @@ export class AppHome {
         } else if (support === '2') {
           this.votes[proposalId]['abstain'] += 1;
         }
-        this.votes = { ...this.votes };
+
+        // deep copy this.votes
+        this.votes = JSON.parse(JSON.stringify(this.votes));
       },
       e => {},
     );
@@ -97,6 +99,7 @@ export class AppHome {
         } else if (support === '2') {
           this.votes[proposalId]['abstain'] += 1;
         }
+        this.votes = JSON.parse(JSON.stringify(this.votes));
       }
     });
   }

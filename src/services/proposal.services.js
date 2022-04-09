@@ -92,6 +92,7 @@ export default class ProposalService {
     let igniteGovernor = new this.web3.eth.Contract(IgniteGovernorContract, governorAddress);
     //All past events
     //Inspect why events here is alwasy length 1
+
     igniteGovernor.getPastEvents('VoteCast', { fromBlock: 0, toBlock: 'latest' }, (_, events) => {
       onPastVoteCreated(events);
     });
