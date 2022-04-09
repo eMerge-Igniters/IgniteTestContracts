@@ -25,7 +25,7 @@ export default class ProposalService {
 
     const transferCalldata = igniteContract.interface.encodeFunctionData('transfer', [teamAddress, grantAmount]);
 
-    await igniteGovernorContract.propose([this.addresses.IGNITE_ADDRESS], [0], [transferCalldata], 'PID #' + `${new Date()}` + ': ETH 80%, HNT 10%, OHM 10%');
+    await igniteGovernorContract.propose([this.addresses.IGNITE_ADDRESS], [0], [transferCalldata], proposalDescription);
   }
 
   onProposalsCreated(onCreated, onData, onError) {
