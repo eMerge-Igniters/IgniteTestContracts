@@ -17,7 +17,7 @@ export default class ProposalService {
     return this.provider.getSigner();
   }
 
-  async createProposal(signer) {
+  async createProposal(signer, proposalDescription) {
     const teamAddress = '0xf262d625cca985573ec7517e807ece0f5723785f';
     const grantAmount = 1000;
     const igniteContract = new ethers.Contract(this.addresses.IGNITE_ADDRESS, IgniteContract, signer);
@@ -27,7 +27,7 @@ export default class ProposalService {
 
     console.log(igniteGovernorContract);
 
-    let proposal = await igniteGovernorContract.propose([this.addresses.IGNITE_ADDRESS], [0], [transferCalldata], 'PID #' + `${new Date()}` + ': ETH 80%, HNT 10%, OHM 10%');
+    let proposal = await igniteGovernorContract.propose([this.addresses.IGNITE_ADDRESS], [0], [transferCalldata], proposalDescription);
     console.log(proposal);
   }
 

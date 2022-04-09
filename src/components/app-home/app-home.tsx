@@ -12,8 +12,9 @@ export class AppHome {
   proposalService = new ProposalService();
 
   handleSubmit(e) {
+    console.log(e);
     e.preventDefault();
-    this.proposalService.createProposal(this.signer);
+    this.proposalService.createProposal(this.signer, this.name);
   }
 
   handleChange(event) {
