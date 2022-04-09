@@ -33,6 +33,8 @@ export class AppHome {
   @State() proposals;
 
   async componentDidLoad() {
+    this.votes = {};
+    this.proposals = [];
     await this.connectToWallet();
     this.proposalService.onProposalsCreated(
       e => {},
