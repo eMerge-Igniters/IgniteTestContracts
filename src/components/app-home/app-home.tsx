@@ -1,4 +1,5 @@
 import { Component, h, State } from '@stencil/core';
+import { createProposal } from '../../services/proposal.services'
 
 @Component({
   tag: 'app-home',
@@ -11,6 +12,7 @@ export class AppHome {
   handleSubmit(e) {
     e.preventDefault();
     console.log(this.name);
+    createProposal();
   }
 
   handleChange(event) {
