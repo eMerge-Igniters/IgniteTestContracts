@@ -52,7 +52,8 @@ export default class ProposalService {
   }
 
   onPastProposals(onPastProposalsCreated) {
-    const governorAddress = this.addresses.IGNITE_GOVERNORADDRESS;
+    const governorAddress = this.addresses.IGNITE_GOVERNOR_ADDRESS;
+    console.log(governorAddress);
     let igniteGovernor = new this.web3.eth.Contract(IgniteGovernorContract, governorAddress);
     //All past events
     //Inspect why events here is alwasy length 1
