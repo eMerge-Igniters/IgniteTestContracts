@@ -1,4 +1,4 @@
-import { Component, h } from '@stencil/core';
+import { Component, h, State } from '@stencil/core';
 
 @Component({
   tag: 'app-home',
@@ -6,17 +6,26 @@ import { Component, h } from '@stencil/core';
   shadow: true,
 })
 export class AppHome {
-  onSubmit() {
-    console.log('submitted');
+  @State() name: string;
+
+  handleSubmit(e) {
+    e.preventDefault();
+    console.log(this.name);
   }
+
+  handleChange(event) {
+    this.name = event.target.value;
+  }
+
   render() {
     return (
-      <div class="app-home">
-        <form onSubmit={this.onSubmit}>
-          <input type="text" name="name" placeholder="proposal name" />
-          <button type="submit">Create Proposal</button>
-        </form>
-      </div>
+      <form onSubmit={e => this.handleSubmit(e)}>
+        <label>
+          Proposal Name:
+          <input type="text" value={this.name} onInput={event => this.handleChange(event)} />
+        </label>
+        <input type="submit" value="Submit" />
+      </form>
     );
   }
 }
