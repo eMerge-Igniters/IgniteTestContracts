@@ -28,6 +28,8 @@ export class AppHome {
     this.signer = null;
   }
 
+  @State() pastProposals;
+
   async componentDidLoad() {
     this.proposalService.onProposalsCreated(
       e => {
@@ -45,8 +47,9 @@ export class AppHome {
     );
 
     this.proposalService.onPastProposals(e => {
-      console.log('OnPastProposals');
       console.log(e);
+      console.log('OnPastProposals');
+      this.pastProposals = e;
     });
   }
 
@@ -72,6 +75,13 @@ export class AppHome {
             </label>
             <input type="submit" value="Submit" />
           </form>
+        )}
+        {this.pastProposals && (
+          <ul>
+            {this.pastProposals.map(proposal => (
+              <li>{proposal.returnValues[8]}</li>
+            ))}
+          </ul>
         )}
       </Host>
     );
